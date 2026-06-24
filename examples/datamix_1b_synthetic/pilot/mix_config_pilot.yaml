@@ -1,0 +1,33 @@
+# Pilot mix: ~500k completion tokens (~600 prompts), same domain fractions as production.
+# Isolated under pilot/ — does not touch the full 1B dataset paths.
+
+total_tokens: 500_000
+
+english_fraction: 0.72
+code_fraction: 0.072
+math_fraction: 0.104
+multilingual_fraction: 0.104
+
+seed: 42
+max_seq_len: 2048
+max_prompt_tokens_reserve: 512
+max_completion_tokens: 1536
+
+avg_tokens:
+  english: 900
+  code: 700
+  math: 600
+  multilingual: 800
+
+generator_model_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+tokenizer_name_or_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+
+paths:
+  root: "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot"
+
+# Pilot: 4 languages instead of 36 (still exercises multilingual path).
+languages:
+  de: German
+  fr: French
+  pl: Polish
+  es: Spanish

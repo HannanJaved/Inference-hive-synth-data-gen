@@ -1,0 +1,160 @@
+=== pilot prepare: Sat Jun 20 21:38:16 CEST 2026 ===
+{
+  "total_tokens_target": 1000000,
+  "total_prompts": 1209,
+  "estimated_completion_tokens": 1002100,
+  "domain_fractions": {
+    "english": 0.72,
+    "code": 0.072,
+    "math": 0.104,
+    "multilingual": 0.104
+  },
+  "by_shard": [
+    {
+      "domain": "english",
+      "lang": "en",
+      "n_prompts": 800,
+      "token_target": 720000,
+      "avg_completion_tokens": 900,
+      "est_completion_tokens": 720000
+    },
+    {
+      "domain": "code",
+      "lang": "en",
+      "n_prompts": 103,
+      "token_target": 72000,
+      "avg_completion_tokens": 700,
+      "est_completion_tokens": 72100
+    },
+    {
+      "domain": "math",
+      "lang": "en",
+      "n_prompts": 174,
+      "token_target": 104000,
+      "avg_completion_tokens": 600,
+      "est_completion_tokens": 104400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "de",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fr",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pl",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "es",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    }
+  ]
+}
+
+Wrote budget plan to /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/budget_plan.json
+Total prompts planned: 1,209
+Estimated completion tokens: 1,002,100
+{
+  "total_tokens_target": 1000000,
+  "total_prompts": 1209,
+  "estimated_completion_tokens": 1002100,
+  "domain_fractions": {
+    "english": 0.72,
+    "code": 0.072,
+    "math": 0.104,
+    "multilingual": 0.104
+  },
+  "by_shard": [
+    {
+      "domain": "english",
+      "lang": "en",
+      "n_prompts": 800,
+      "token_target": 720000,
+      "avg_completion_tokens": 900,
+      "est_completion_tokens": 720000
+    },
+    {
+      "domain": "code",
+      "lang": "en",
+      "n_prompts": 103,
+      "token_target": 72000,
+      "avg_completion_tokens": 700,
+      "est_completion_tokens": 72100
+    },
+    {
+      "domain": "math",
+      "lang": "en",
+      "n_prompts": 174,
+      "token_target": 104000,
+      "avg_completion_tokens": 600,
+      "est_completion_tokens": 104400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "de",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fr",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pl",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    },
+    {
+      "domain": "multilingual",
+      "lang": "es",
+      "n_prompts": 33,
+      "token_target": 26000,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 26400
+    }
+  ]
+}
+
+Wrote budget plan to /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/budget_plan.json
+Total prompts planned: 1,209
+Estimated completion tokens: 1,002,100
+
+Wrote prompts: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/prompts/prompts.jsonl
+Wrote inference-hive dataset: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/dataset/datamix-synth-chat-completion
+
+Next steps:
+  1. Edit config_datamix_1b.yaml (SLURM paths, model)
+  2. python ../../validate_config.py --config config_datamix_1b.yaml
+  3. python ../../validate_data.py --config config_datamix_1b.yaml
+  4. python ../../create_run.py --config config_datamix_1b.yaml --output runs/datamix_1b
+  5. python ../../submit.py --run-dir runs/datamix_1b
+=== done: Sat Jun 20 21:38:25 CEST 2026 ===
+Dataset: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/dataset/datamix-synth-chat-completion
+Next: sbatch slurm/02_validate_create_run.sbatch

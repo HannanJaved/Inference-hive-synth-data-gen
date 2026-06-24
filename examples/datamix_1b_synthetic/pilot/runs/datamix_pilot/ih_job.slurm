@@ -1,78 +1,69 @@
-import argparse
-import re
-import shutil
-from pathlib import Path
-
-from loguru import logger
-
-from inference_hive.config import load_job_config
-
-
-SBATCH_TEMPLATE = r"""#!/bin/bash -l
-#SBATCH --job-name={job_name}
-#SBATCH --partition={partition}
-{account_sbatch_line}{qos_sbatch_line}##SBATCH --array=0-{array_limit}
-#SBATCH --nodes={num_nodes_per_inference_server}
+#!/bin/bash -l
+#SBATCH --job-name=datamix-synth-pilot
+#SBATCH --partition=alpha
+##SBATCH --array=0-0
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task={cpus_per_node}
-{memory_sbatch_line}#SBATCH --gres={gres_per_node}
-#SBATCH --time={time_limit}
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=64G
+#SBATCH --gres=gpu:1
+#SBATCH --time=2-00:00:00
 #SBATCH --signal=B:SIGUSR1@120
-#SBATCH --output={log_dir}/%a-%A-%N.log
-#SBATCH --error={log_dir}/%a-%A-%N.log
-{additional_sbatch_lines}
+#SBATCH --output=examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/logs/%a-%A-%N.log
+#SBATCH --error=examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/logs/%a-%A-%N.log
+
 
 # Print job information
 echo "=== SLURM Job Information ==="
-echo "SLURM_JOB_NAME: ${{SLURM_JOB_NAME}}"
-echo "SLURM_JOB_ID: ${{SLURM_JOB_ID}}"
-echo "SLURM_ARRAY_JOB_ID: ${{SLURM_ARRAY_JOB_ID}}"
-echo "SLURM_ARRAY_TASK_ID: ${{SLURM_ARRAY_TASK_ID}}"
-echo "SLURM_JOB_NUM_NODES: ${{SLURM_JOB_NUM_NODES}}"
-echo "SLURM_JOB_NODELIST: ${{SLURM_JOB_NODELIST}}"
-echo "SLURM_JOB_PARTITION: ${{SLURM_JOB_PARTITION}}"
-echo "SLURM_JOB_ACCOUNT: ${{SLURM_JOB_ACCOUNT}}"
+echo "SLURM_JOB_NAME: ${SLURM_JOB_NAME}"
+echo "SLURM_JOB_ID: ${SLURM_JOB_ID}"
+echo "SLURM_ARRAY_JOB_ID: ${SLURM_ARRAY_JOB_ID}"
+echo "SLURM_ARRAY_TASK_ID: ${SLURM_ARRAY_TASK_ID}"
+echo "SLURM_JOB_NUM_NODES: ${SLURM_JOB_NUM_NODES}"
+echo "SLURM_JOB_NODELIST: ${SLURM_JOB_NODELIST}"
+echo "SLURM_JOB_PARTITION: ${SLURM_JOB_PARTITION}"
+echo "SLURM_JOB_ACCOUNT: ${SLURM_JOB_ACCOUNT}"
 echo "============================="
 
 # Check if this shard is already completed
-CURRENT_SHARD=${{SLURM_ARRAY_TASK_ID}}
-COMPLETED_SHARDS_FILE="{progress_dir}/shards_completed.log"
-FAILED_SHARDS_FILE="{progress_dir}/shards_failed.log"
+CURRENT_SHARD=${SLURM_ARRAY_TASK_ID}
+COMPLETED_SHARDS_FILE="examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/progress/shards_completed.log"
+FAILED_SHARDS_FILE="examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/progress/shards_failed.log"
 
 
 set -e
 
-log() {{
+log() {
    local level="$1"
    local message="$2"
    echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] $message"
-}}
+}
 
-log_failed_shard() {{
+log_failed_shard() {
     local reason="$1"
     local additional_info="$2"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    local job_info="${{SLURM_ARRAY_JOB_ID:-${{SLURM_JOB_ID}}}}-${{SLURM_ARRAY_TASK_ID}}"
+    local job_info="${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID}}-${SLURM_ARRAY_TASK_ID}"
     
     # Create failed shards log entry: shard_number timestamp reason job_info hostname additional_info
-    echo "${{CURRENT_SHARD}} ${{timestamp}} ${{reason}} ${{job_info}} ${{additional_info}}" >> "${{FAILED_SHARDS_FILE}}"
-    log "ERROR" "Marked shard ${{CURRENT_SHARD}} as failed: ${{reason}} ${{additional_info}}"
-}}
+    echo "${CURRENT_SHARD} ${timestamp} ${reason} ${job_info} ${additional_info}" >> "${FAILED_SHARDS_FILE}"
+    log "ERROR" "Marked shard ${CURRENT_SHARD} as failed: ${reason} ${additional_info}"
+}
 
 # Check if this shard is already completed
 if [ -f "$COMPLETED_SHARDS_FILE" ]; then
     # Use grep with word boundaries to match exact shard number
-    if grep -q "^${{CURRENT_SHARD}}$" "$COMPLETED_SHARDS_FILE"; then
-        log "INFO" "Shard ${{CURRENT_SHARD}} is already completed. Exiting."
+    if grep -q "^${CURRENT_SHARD}$" "$COMPLETED_SHARDS_FILE"; then
+        log "INFO" "Shard ${CURRENT_SHARD} is already completed. Exiting."
         exit 0
     else
-        log "INFO" "Shard ${{CURRENT_SHARD}} not found in completed shards. Proceeding with inference."
+        log "INFO" "Shard ${CURRENT_SHARD} not found in completed shards. Proceeding with inference."
     fi
 else
     log "INFO" "No completed shards log found. Proceeding with inference."
 fi
 
-cleanup() {{
+cleanup() {
     local signal=$1
     log "INFO" "Received signal $signal, initiating cleanup..."
     if [ "$signal" = "SIGUSR1" ]; then
@@ -151,16 +142,16 @@ cleanup() {{
     
     # Only resubmit if this was a time limit signal, not a manual cancellation
     # Resubmit instead of requeue since requeue is disabled on many clusters.
-    sbatch_command=(sbatch --array="${{SLURM_ARRAY_TASK_ID}}" --job-name="{job_name}-$(printf '%06d' "${{SLURM_ARRAY_TASK_ID}}")" "{output_dir}/ih_job.slurm")
+    sbatch_command=(sbatch --array="${SLURM_ARRAY_TASK_ID}" --job-name="datamix-synth-pilot-$(printf '%06d' "${SLURM_ARRAY_TASK_ID}")" "examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/ih_job.slurm")
     if [ "$signal" = "SIGUSR1" ]; then
-        log "INFO" "Resubmitting task ${{SLURM_ARRAY_TASK_ID}} automatically due to time limit..."
-        log "INFO" "Running command: ${{sbatch_command[*]}}"
-        if sbatch_output="$("${{sbatch_command[@]}}" 2>&1)"; then
+        log "INFO" "Resubmitting task ${SLURM_ARRAY_TASK_ID} automatically due to time limit..."
+        log "INFO" "Running command: ${sbatch_command[*]}"
+        if sbatch_output="$("${sbatch_command[@]}" 2>&1)"; then
             new_job_id=$(echo "$sbatch_output" | grep -o '[0-9]*')
-            log "INFO" "Task ${{SLURM_ARRAY_TASK_ID}} resubmitted successfully as job ${{new_job_id}}. Progress will resume from checkpoint."
+            log "INFO" "Task ${SLURM_ARRAY_TASK_ID} resubmitted successfully as job ${new_job_id}. Progress will resume from checkpoint."
         else
-            log "ERROR" "Failed to resubmit task ${{SLURM_ARRAY_TASK_ID}}. Error: $sbatch_output"
-            log "ERROR" "You may need to resubmit manually: ${{sbatch_command[*]}}"
+            log "ERROR" "Failed to resubmit task ${SLURM_ARRAY_TASK_ID}. Error: $sbatch_output"
+            log "ERROR" "You may need to resubmit manually: ${sbatch_command[*]}"
             # Mark as failed since resubmission failed
             log_failed_shard "resubmission_failed" "Failed to resubmit after time limit: $sbatch_output"
         fi
@@ -171,12 +162,12 @@ cleanup() {{
         else
             log_failed_shard "unexpected_signal" "Job received signal: $signal"
         fi
-        log "INFO" "Task ${{SLURM_ARRAY_TASK_ID}} was manually cancelled - not resubmitting automatically."
-        log "INFO" "To restart this task later, run: ${{sbatch_command[*]}}"
+        log "INFO" "Task ${SLURM_ARRAY_TASK_ID} was manually cancelled - not resubmitting automatically."
+        log "INFO" "To restart this task later, run: ${sbatch_command[*]}"
     fi
     
     exit 0
-}}
+}
 
 trap 'cleanup SIGUSR1' SIGUSR1 # send before timelimit is hit
 trap 'cleanup SIGTERM' SIGTERM # send by scancel
@@ -184,11 +175,19 @@ trap 'cleanup SIGTERM' SIGTERM # send by scancel
 # Setup env
 
 # Activate environment
-{env_activation_block}
+log "INFO" "Activating environment with custom command"
+module load CUDA
+source /data/horse/ws/hama901h-whittle/cache.sh
+source /data/horse/ws/hama901h-whittle/inference-hive/.venv/bin/activate
+
 log "INFO" "python path: $(which python)"
 
 # Add env exports
-{env_exports}
+export HF_HUB_OFFLINE="1"
+export VLLM_DISABLE_COMPILE_CACHE="1"
+export TOKENIZERS_PARALLELISM="false"
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+
 
 # Pick a random port in valid range to avoid collisions when multiple shards run on same node
 # Range 30000-60000 avoids privileged ports and stays well under the 65535 limit
@@ -197,34 +196,34 @@ export IH_PORT
 log "INFO" "Dynamic port allocation: IH_PORT=$IH_PORT"
 
 # Set API_BASE_URL with dynamic port substitution
-# Replace ${{IH_PORT}} in the URL template with the actual port value
-_API_BASE_URL_TEMPLATE="{api_base_url}"
-export API_BASE_URL="${{_API_BASE_URL_TEMPLATE//\$\{{IH_PORT\}}/$IH_PORT}}"
+# Replace ${IH_PORT} in the URL template with the actual port value
+_API_BASE_URL_TEMPLATE="http://localhost:${IH_PORT}/v1"
+export API_BASE_URL="${_API_BASE_URL_TEMPLATE//\$\{IH_PORT\}/$IH_PORT}"
 log "INFO" "API_BASE_URL=$API_BASE_URL"
 
-MASTER_NODE=$(scontrol show hostname ${{SLURM_JOB_NODELIST}} | head -n1)
+MASTER_NODE=$(scontrol show hostname ${SLURM_JOB_NODELIST} | head -n1)
 export MASTER_NODE
 
 # Validate dataset before starting inference server
-log "INFO" "Validating dataset format for shard ${{CURRENT_SHARD}}"
-python validate_data.py --config {config_path} --shard ${{CURRENT_SHARD}} --num-shards {num_data_shards}
+log "INFO" "Validating dataset format for shard ${CURRENT_SHARD}"
+python validate_data.py --config examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/ih_config.yaml --shard ${CURRENT_SHARD} --num-shards 1
 VALIDATION_EXIT_CODE=$?
 
 if [ $VALIDATION_EXIT_CODE -ne 0 ]; then
-    log "ERROR" "Dataset validation failed for shard ${{CURRENT_SHARD}}. Exiting."
+    log "ERROR" "Dataset validation failed for shard ${CURRENT_SHARD}. Exiting."
     log_failed_shard "data_validation_failed" "Dataset validation failed before starting inference server"
     exit 1
 fi
 
-log "INFO" "Dataset validation passed for shard ${{CURRENT_SHARD}}"
+log "INFO" "Dataset validation passed for shard ${CURRENT_SHARD}"
 
 # Start inference server
-log "INFO" "Starting inference server on ${{SLURM_JOB_NUM_NODES}} nodes"
-INFERENCE_SERVER_LOG="{log_dir}/${{SLURM_ARRAY_TASK_ID}}-${{SLURM_JOB_ID}}-%N-inference-server.log"
-INFERENCE_SERVER_COMMAND="{inference_server_command}"
-log "INFO" "Inference server command: ${{INFERENCE_SERVER_COMMAND}}"
+log "INFO" "Starting inference server on ${SLURM_JOB_NUM_NODES} nodes"
+INFERENCE_SERVER_LOG="examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/logs/${SLURM_ARRAY_TASK_ID}-${SLURM_JOB_ID}-%N-inference-server.log"
+INFERENCE_SERVER_COMMAND="python -m vllm.entrypoints.openai.api_server --host=localhost --port=$IH_PORT --model="/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279" --tensor-parallel-size=1 --data-parallel-size=1 --max-model-len=2048 --trust-remote-code --gpu-memory-utilization=0.9 --max-log-len=10"
+log "INFO" "Inference server command: ${INFERENCE_SERVER_COMMAND}"
 setsid srun --output="$INFERENCE_SERVER_LOG" --error="$INFERENCE_SERVER_LOG" \
-    bash -c "${{INFERENCE_SERVER_COMMAND}}" &
+    bash -c "${INFERENCE_SERVER_COMMAND}" &
 INFERENCE_SERVER_PID=$!
 
 # Give the inference server srun command time to actually start
@@ -244,14 +243,14 @@ if ! kill -0 $INFERENCE_SERVER_PID 2>/dev/null; then
 fi
 
 # Wait for inference server to become healthy
-wait_for_api_server() {{
-    local max_attempts=$(({health_check_max_wait_minutes} * 60 / {health_check_interval_seconds}))  # Calculate attempts based on total time and interval
-    log "INFO" "Maximum health check wait time: {health_check_max_wait_minutes} minutes"
+wait_for_api_server() {
+    local max_attempts=$((20 * 60 / 20))  # Calculate attempts based on total time and interval
+    log "INFO" "Maximum health check wait time: 20 minutes"
     local attempt=0
-    local health_url="${{API_BASE_URL%/v1}}/health"
+    local health_url="${API_BASE_URL%/v1}/health"
     
     while [ $attempt -lt $max_attempts ]; do
-        log "INFO" "Health check attempt $((attempt + 1))/${{max_attempts}} for ${{health_url}}"
+        log "INFO" "Health check attempt $((attempt + 1))/${max_attempts} for ${health_url}"
         
         # Check if the inference server srun process is still running
         if ! kill -0 $INFERENCE_SERVER_PID 2>/dev/null; then
@@ -264,19 +263,19 @@ wait_for_api_server() {{
             return 1
         fi
         
-        if curl -s --connect-timeout 5 --max-time 10 "${{health_url}}" >/dev/null 2>&1; then
+        if curl -s --connect-timeout 5 --max-time 10 "${health_url}" >/dev/null 2>&1; then
             log "INFO" "Inference server is healthy and ready!"
             return 0
         fi
         
-        log "INFO" "Inference server not ready, waiting {health_check_interval_seconds} seconds..."
-        sleep {health_check_interval_seconds}
+        log "INFO" "Inference server not ready, waiting 20 seconds..."
+        sleep 20
         attempt=$((attempt + 1))
     done
     
     log "ERROR" "Error: inference server did not become healthy within timeout"
     return 1
-}}
+}
 log "INFO" "Waiting for inference server to become healthy"
 wait_for_api_server
 HEALTHCHECK_EXIT_CODE=$?
@@ -290,9 +289,9 @@ fi
 
 # Run inference
 log "INFO" "Running inference"
-INFERENCE_PROGRESS_LOG="{progress_dir}/${{SLURM_ARRAY_TASK_ID}}-progress.jsonl"
+INFERENCE_PROGRESS_LOG="examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/progress/${SLURM_ARRAY_TASK_ID}-progress.jsonl"
 # Start inference in a new process group so we can kill the entire group
-setsid python run_inference.py --config {config_path} --num-shards {num_data_shards} --shard ${{CURRENT_SHARD}} --log-file $INFERENCE_PROGRESS_LOG &
+setsid python run_inference.py --config examples/datamix_1b_synthetic/pilot/runs/datamix_pilot/ih_config.yaml --num-shards 1 --shard ${CURRENT_SHARD} --log-file $INFERENCE_PROGRESS_LOG &
 INFERENCE_PID=$!
 
 # GPU idle monitor - background watchdog that terminates the job if the GPU
@@ -310,10 +309,10 @@ INFERENCE_PID=$!
         gpu_util=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null | head -1 | tr -d ' ')
         if [ -n "$gpu_util" ] && [ "$gpu_util" -lt $GPU_IDLE_THRESHOLD ] 2>/dev/null; then
             consecutive_idle=$((consecutive_idle + 1))
-            log "WARN" "GPU utilization low (${{gpu_util}}%), idle check ${{consecutive_idle}}/${{GPU_IDLE_MAX_CHECKS}}"
+            log "WARN" "GPU utilization low (${gpu_util}%), idle check ${consecutive_idle}/${GPU_IDLE_MAX_CHECKS}"
             if [ $consecutive_idle -ge $GPU_IDLE_MAX_CHECKS ]; then
                 log "ERROR" "GPU idle for $((GPU_IDLE_MAX_CHECKS * GPU_IDLE_INTERVAL))s+ — inference server likely dead. Terminating to save resources."
-                log_failed_shard "gpu_idle_timeout" "GPU utilization below ${{GPU_IDLE_THRESHOLD}}% for $((GPU_IDLE_MAX_CHECKS * GPU_IDLE_INTERVAL))s"
+                log_failed_shard "gpu_idle_timeout" "GPU utilization below ${GPU_IDLE_THRESHOLD}% for $((GPU_IDLE_MAX_CHECKS * GPU_IDLE_INTERVAL))s"
                 kill -TERM -$INFERENCE_PID 2>/dev/null || kill -TERM $INFERENCE_PID 2>/dev/null
                 exit 0
             fi
@@ -336,7 +335,7 @@ fi
 
 if [ $INFERENCE_EXIT_CODE -eq 0 ]; then
     log "INFO" "Inference completed successfully, recording shard completion"
-    echo "${{CURRENT_SHARD}}" >> "$COMPLETED_SHARDS_FILE"
+    echo "${CURRENT_SHARD}" >> "$COMPLETED_SHARDS_FILE"
     log "INFO" "Done"
 else
     log "ERROR" "Inference failed with exit code $INFERENCE_EXIT_CODE"
@@ -371,161 +370,3 @@ log "INFO" "Inference server shutdown complete"
 
 # Exit with the inference exit code to properly signal success/failure to Slurm
 exit $INFERENCE_EXIT_CODE
-"""
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--config", "-c",
-        type=str,
-        required=True,
-        help="Path to the YAML configuration file"
-    )
-    parser.add_argument(
-        "--output", "-o",
-        type=str,
-        required=True,
-        help="Directory where the slurm job script and config will be copied to, and slurm logs will be written to."
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Allow overwriting existing output directory"
-    )
-    args = parser.parse_args()
-    
-    # Validate that config file exists
-    config_path = Path(args.config)
-    if not config_path.exists():
-        logger.error(f"Configuration file '{args.config}' does not exist.")
-        return 1
-    
-    # Load configuration using the shared config module
-    try:
-        config = load_job_config(config_path)
-        # Convert to dict for template formatting
-        config_dict = config.model_dump()
-        
-        # Clean inference_server_command: YAML folded block scalar (>) replaces newlines
-        # with spaces but keeps backslashes from line continuation, resulting in "\ "
-        # sequences that cause shell parsing errors. Remove them.
-        if config_dict.get("inference_server_command"):
-            # Remove backslash followed by whitespace (line continuation artifacts)
-            cmd = config_dict["inference_server_command"]
-            cmd = re.sub(r'\\\s+', ' ', cmd)  # Replace \<whitespace> with single space
-            cmd = ' '.join(cmd.split())  # Normalize whitespace
-            config_dict["inference_server_command"] = cmd
-    except Exception as e:
-        logger.error(f"Configuration validation error: {e}")
-        return 1
-
-    # Ensure the output_path directory exists (where results will be written to)
-    output_path = Path(config.output_path)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Create output directory
-    output_dir = Path(args.output)
-    if output_dir.exists():
-        if not args.force:
-            logger.error(f"Output directory '{output_dir}' already exists. Use --force to overwrite.")
-            return 1
-        else:
-            logger.warning(f"Output directory '{output_dir}' already exists. Overwriting due to --force flag.")
-    
-    # Ensure directory exists (in case --force was used but directory was removed)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory: {output_dir}")
-
-
-
-    progress_dir = output_dir / "progress"
-    progress_dir.mkdir(exist_ok=True)
-
-    log_dir = output_dir / "logs"
-    log_dir.mkdir(exist_ok=True)
-    
-    config_dict["output_dir"] = str(output_dir)
-    config_dict["log_dir"] = str(log_dir)
-    config_dict["progress_dir"] = str(progress_dir)
-
-    # num_inference_servers is the number of data shards
-    config_dict["num_data_shards"] = config.num_inference_servers
-    config_dict["array_limit"] = config.num_inference_servers - 1
-
-    # Generate additional SBATCH lines
-    additional_sbatch_lines = ""
-    if config.additional_sbatch_args:
-        for key, value in config.additional_sbatch_args.items():
-            # Ensure key starts with -- if not already present
-            if not key.startswith("--"):
-                key = f"--{key}"
-            additional_sbatch_lines += f"#SBATCH {key}={value}\n"
-    config_dict["additional_sbatch_lines"] = additional_sbatch_lines
-
-    # Optional SBATCH lines (omit when empty — some clusters have no account/qos)
-    if config.account and str(config.account).strip():
-        config_dict["account_sbatch_line"] = f"#SBATCH --account={config.account.strip()}\n"
-    else:
-        config_dict["account_sbatch_line"] = ""
-    if config.qos and str(config.qos).strip():
-        config_dict["qos_sbatch_line"] = f"#SBATCH --qos={config.qos.strip()}\n"
-    else:
-        config_dict["qos_sbatch_line"] = ""
-
-    # Generate memory SBATCH line (optional - some clusters auto-allocate memory per CPU)
-    if config.memory_per_node:
-        config_dict["memory_sbatch_line"] = f"#SBATCH --mem={config.memory_per_node}\n"
-    else:
-        config_dict["memory_sbatch_line"] = ""
-
-    # Generate environment variable exports
-    env_exports = ""
-    if config.env_vars:
-        for key, value in config.env_vars.items():
-            env_exports += f"export {key}=\"{value}\"\n"
-    config_dict["env_exports"] = env_exports
-
-    # Generate environment activation block
-    if config.env_activation_command:
-        env_activation_block = f'log "INFO" "Activating environment with custom command"\n{config.env_activation_command}'
-    else:
-        env_activation_block = f'log "INFO" "Activating pixi environment: {config.pixi_env}"\neval "$(pixi shell-hook --manifest-path {config.pixi_manifest} -e {config.pixi_env} --no-install)"'
-    config_dict["env_activation_block"] = env_activation_block
-
-    # Copy config file to output directory for reproducibility
-    config_copy_path = output_dir / "ih_config.yaml"
-    try:
-        shutil.copy2(config_path, config_copy_path)
-        logger.info(f"Config copied to: {config_copy_path}")
-    except Exception as e:
-        logger.warning(f"Could not copy config file: {e}")
-    config_dict["config_path"] = str(config_copy_path)
-
-    # Copy udf.py file to output directory for reproducibility if apply_udf is used
-    if config.apply_udf:
-        udf_path = Path(__file__).parent / "inference_hive" / "udf.py"
-        udf_copy_path = output_dir / "udf.py"
-        try:
-            shutil.copy2(udf_path, udf_copy_path)
-            logger.info(f"UDF file copied to: {udf_copy_path}")
-        except Exception as e:
-            logger.warning(f"Could not copy UDF file: {e}")
-
-    sbatch_script = SBATCH_TEMPLATE.format(**config_dict)
-    
-    job_script_path = output_dir / "ih_job.slurm"
-    try:
-        with open(job_script_path, "w") as f:
-            f.write(sbatch_script)
-        logger.info(f"SLURM job script generated successfully: {job_script_path}")
-    except Exception as e:
-        logger.error(f"Error writing job script '{job_script_path}': {e}")
-        return 1
-
-    logger.info(f"Run created at: {output_dir}")
-    return 0
-
-
-if __name__ == "__main__":
-    exit(main())

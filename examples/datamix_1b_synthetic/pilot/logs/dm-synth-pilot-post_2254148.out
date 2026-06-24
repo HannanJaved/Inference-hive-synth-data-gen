@@ -1,0 +1,72 @@
+=== pilot postprocess: Sat Jun 20 22:45:46 CEST 2026 ===
+{
+  "kept": 886,
+  "rejected": 323,
+  "estimated_completion_tokens": 623759,
+  "by_domain": {
+    "english": 635,
+    "code": 74,
+    "math": 73,
+    "multilingual": 104
+  },
+  "by_lang": {
+    "en": 782,
+    "de": 25,
+    "fr": 25,
+    "pl": 26,
+    "es": 28
+  },
+  "reject_reasons": {
+    "empty_response": 64,
+    "short_completion": 177,
+    "assistant_leak": 11,
+    "markdown_fence": 24,
+    "math_format": 46,
+    "too_short": 1
+  },
+  "corpus_jsonl": "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/synthetic_corpus.jsonl"
+}
+{
+  "kept": 886,
+  "rejected": 323,
+  "estimated_completion_tokens": 623759,
+  "by_domain": {
+    "english": 635,
+    "code": 74,
+    "math": 73,
+    "multilingual": 104
+  },
+  "by_lang": {
+    "en": 782,
+    "de": 25,
+    "fr": 25,
+    "pl": 26,
+    "es": 28
+  },
+  "reject_reasons": {
+    "empty_response": 64,
+    "short_completion": 177,
+    "assistant_leak": 11,
+    "markdown_fence": 24,
+    "math_format": 46,
+    "too_short": 1
+  },
+  "corpus_jsonl": "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/synthetic_corpus.jsonl"
+}
+{
+  "tokenizer": "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279",
+  "documents": 886,
+  "total_tokens": 623284,
+  "by_domain_tokens": {
+    "english": 443200,
+    "code": 77739,
+    "math": 47421,
+    "multilingual": 54924
+  },
+  "token_counts_jsonl": "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/tokenized/tokens.jsonl"
+}
+=== outputs ===
+  corpus: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/synthetic_corpus.jsonl
+  stats:  /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/join_stats.json
+  tokens: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/corpus/tokenized/tokenize_stats.json
+=== done: Sat Jun 20 22:46:02 CEST 2026 ===

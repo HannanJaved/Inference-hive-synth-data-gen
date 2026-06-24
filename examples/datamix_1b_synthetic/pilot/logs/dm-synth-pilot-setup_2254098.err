@@ -1,0 +1,10 @@
+2026-06-20 21:40:18.239 | INFO     | __main__:main:21 - Validating: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/config_datamix_pilot.yaml
+2026-06-20 21:40:18.252 | INFO     | __main__:main:27 - ✓ Valid for create_slurm_script.py
+2026-06-20 21:40:18.258 | INFO     | __main__:main:36 - ✓ Valid for run_inference.py
+2026-06-20 21:40:18.258 | INFO     | __main__:main:42 - Configuration is valid!
+Traceback (most recent call last):
+  File "/data/horse/ws/hama901h-whittle/inference-hive/validate_data.py", line 13, in <module>
+    from inference_hive import udf
+  File "/data/horse/ws/hama901h-whittle/inference-hive/inference_hive/udf.py", line 7, in <module>
+    from .propella import create_messages
+ModuleNotFoundError: No module named 'inference_hive.propella'

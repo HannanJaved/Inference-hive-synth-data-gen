@@ -1,0 +1,73 @@
+# Datamix synthetic 1B-token pipeline configuration.
+# Fractions mirror Datamix pretraining mix:
+#   72% English (Nemotron-CC style)
+#   7.2% Code (StarCoder style)
+#   10.4% Math (FineMath 4+ style)
+#   10.4% Multilingual (HPLT 2.0 style, 36 languages)
+
+total_tokens: 1_000_000_000
+
+english_fraction: 0.72
+code_fraction: 0.072
+math_fraction: 0.104
+multilingual_fraction: 0.104
+
+seed: 42
+max_seq_len: 2048
+max_prompt_tokens_reserve: 512
+max_completion_tokens: 1536
+
+# Expected average completion length per domain (used for prompt budgeting).
+avg_tokens:
+  english: 900
+  code: 700
+  math: 600
+  multilingual: 800
+
+# Generator + tokenizer: Datamix 9B (local HF checkpoint).
+generator_model_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+tokenizer_name_or_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+
+# Override paths relative to DATAMIX_SYNTH_ROOT if needed.
+paths:
+  root: "."
+
+# 36 EU + partner languages (HPLT 2.0 style). Edit to match your HPLT subset.
+languages:
+  bg: Bulgarian
+  cs: Czech
+  da: Danish
+  de: German
+  el: Greek
+  es: Spanish
+  et: Estonian
+  fi: Finnish
+  fr: French
+  ga: Irish
+  hr: Croatian
+  hu: Hungarian
+  is: Icelandic
+  it: Italian
+  lt: Lithuanian
+  lv: Latvian
+  mt: Maltese
+  nl: Dutch
+  "no": Norwegian
+  pl: Polish
+  pt: Portuguese
+  ro: Romanian
+  sk: Slovak
+  sl: Slovenian
+  sq: Albanian
+  sr: Serbian
+  sv: Swedish
+  uk: Ukrainian
+  ca: Catalan
+  eu: Basque
+  gl: Galician
+  mk: Macedonian
+  bs: Bosnian
+  be: Belarusian
+  cy: Welsh
+  lb: Luxembourgish
+  rm: Romansh

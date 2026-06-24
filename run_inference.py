@@ -1080,9 +1080,10 @@ def main(config, args: argparse.Namespace):
         logger.error("One or more processes failed")
         sys.exit(1)
 
-    if (total_processed + skipped + total_errors) < total_rows:
+    if (total_processed + skipped) < total_rows:
         logger.error(
-            f"Shard incomplete: {total_processed + skipped + total_errors:_}/{total_rows:_} rows"
+            f"Shard incomplete: {total_processed + skipped:_}/{total_rows:_} rows "
+            f"({total_errors:_} errors)"
         )
         sys.exit(1)
 

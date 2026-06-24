@@ -1,0 +1,9 @@
+=== 1B validate + create-run: Mon Jun 22 01:13:47 CEST 2026 ===
+
+=== Review before GPU submit ===
+  Config copy:  /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/runs/datamix_1b/ih_config.yaml
+  SLURM script: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/runs/datamix_1b/ih_job.slurm
+
+Inspect those files, then submit inference (login node):
+  /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/submit_inference.sh
+=== done: Mon Jun 22 01:13:57 CEST 2026 ===

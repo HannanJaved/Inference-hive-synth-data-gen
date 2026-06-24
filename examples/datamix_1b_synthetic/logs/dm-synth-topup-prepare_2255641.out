@@ -1,0 +1,688 @@
+=== top-up prepare: Tue Jun 23 18:24:39 CEST 2026 ===
+{
+  "total_tokens_target": 300000000,
+  "total_prompts": 361893,
+  "estimated_completion_tokens": 300028600,
+  "domain_fractions": {
+    "english": 0.72,
+    "code": 0.072,
+    "math": 0.104,
+    "multilingual": 0.104
+  },
+  "by_shard": [
+    {
+      "domain": "english",
+      "lang": "en",
+      "n_prompts": 240000,
+      "token_target": 216000000,
+      "avg_completion_tokens": 900,
+      "est_completion_tokens": 216000000
+    },
+    {
+      "domain": "code",
+      "lang": "en",
+      "n_prompts": 30858,
+      "token_target": 21600000,
+      "avg_completion_tokens": 700,
+      "est_completion_tokens": 21600600
+    },
+    {
+      "domain": "math",
+      "lang": "en",
+      "n_prompts": 52000,
+      "token_target": 31200000,
+      "avg_completion_tokens": 600,
+      "est_completion_tokens": 31200000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "bg",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "cs",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "da",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "de",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "el",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "es",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "et",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fi",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ga",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "hr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "hu",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "is",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "it",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lv",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "mt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "nl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "no",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ro",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sq",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sv",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "uk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ca",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "eu",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "gl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "mk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "bs",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "be",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "cy",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lb",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "rm",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    }
+  ]
+}
+
+Wrote budget plan to /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/topup/budget_plan.json
+Total prompts planned: 361,893
+Estimated completion tokens: 300,028,600
+{
+  "total_tokens_target": 300000000,
+  "total_prompts": 361893,
+  "estimated_completion_tokens": 300028600,
+  "domain_fractions": {
+    "english": 0.72,
+    "code": 0.072,
+    "math": 0.104,
+    "multilingual": 0.104
+  },
+  "by_shard": [
+    {
+      "domain": "english",
+      "lang": "en",
+      "n_prompts": 240000,
+      "token_target": 216000000,
+      "avg_completion_tokens": 900,
+      "est_completion_tokens": 216000000
+    },
+    {
+      "domain": "code",
+      "lang": "en",
+      "n_prompts": 30858,
+      "token_target": 21600000,
+      "avg_completion_tokens": 700,
+      "est_completion_tokens": 21600600
+    },
+    {
+      "domain": "math",
+      "lang": "en",
+      "n_prompts": 52000,
+      "token_target": 31200000,
+      "avg_completion_tokens": 600,
+      "est_completion_tokens": 31200000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "bg",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "cs",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "da",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "de",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "el",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "es",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "et",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fi",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "fr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ga",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "hr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "hu",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "is",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "it",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lv",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "mt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "nl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "no",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "pt",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ro",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sq",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sr",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "sv",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "uk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "ca",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "eu",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "gl",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "mk",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "bs",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "be",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "cy",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "lb",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    },
+    {
+      "domain": "multilingual",
+      "lang": "rm",
+      "n_prompts": 1055,
+      "token_target": 843243,
+      "avg_completion_tokens": 800,
+      "est_completion_tokens": 844000
+    }
+  ]
+}
+
+Wrote budget plan to /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/topup/budget_plan.json
+Total prompts planned: 361,893
+Estimated completion tokens: 300,028,600
+
+Wrote prompts: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/topup/prompts/prompts.jsonl
+Wrote inference-hive dataset: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/topup/dataset/datamix-synth-completion
+
+Next steps:
+  1. Edit config_datamix_1b.yaml (SLURM paths, model)
+  2. python ../../validate_config.py --config config_datamix_1b.yaml
+  3. python ../../validate_data.py --config config_datamix_1b.yaml
+  4. python ../../create_run.py --config config_datamix_1b.yaml --output runs/datamix_1b
+  5. python ../../submit.py --run-dir runs/datamix_1b
+=== done: Tue Jun 23 18:25:06 CEST 2026 ===
+Dataset: /data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/topup/dataset/datamix-synth-completion
+Next: sbatch slurm/02_validate_create_run_topup.sbatch

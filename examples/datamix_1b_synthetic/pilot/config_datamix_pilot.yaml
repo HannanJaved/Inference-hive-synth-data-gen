@@ -1,0 +1,75 @@
+# inference-hive PILOT config — single shard, ~500k tokens, Datamix 9B generator.
+# SLURM params aligned with whittle-paper/launch_search.sh (alpha, gpu:1, 64G, requeue).
+
+# === SLURM Configuration ===
+job_name: "datamix-synth-pilot"
+partition: "alpha"
+account: ""
+qos: ""
+cpus_per_node: 6
+memory_per_node: "64G"
+gres_per_node: "gpu:1"
+time_limit: "2-00:00:00"
+additional_sbatch_args: {}
+
+# === Scaling Configuration ===
+# Single inference server = 1 shard on 1 GPU node (matches launch_search.sh gpu:1).
+num_inference_servers: 1
+num_nodes_per_inference_server: 1
+
+# === Environment Configuration ===
+pixi_manifest:
+pixi_env:
+env_activation_command: |
+  module load CUDA
+  source /data/horse/ws/hama901h-whittle/cache.sh
+  source /data/horse/ws/hama901h-whittle/inference-hive/.venv/bin/activate
+env_vars:
+  HF_HUB_OFFLINE: "1"
+  VLLM_DISABLE_COMPILE_CACHE: "1"
+  TOKENIZERS_PARALLELISM: "false"
+  PYTORCH_CUDA_ALLOC_CONF: "expandable_segments:True"
+
+# === Inference Server Configuration ===
+inference_server_command: >
+  python -m vllm.entrypoints.openai.api_server
+  --host=localhost
+  --port=$IH_PORT
+  --model="/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+  --tensor-parallel-size=1
+  --data-parallel-size=1
+  --max-model-len=2048
+  --trust-remote-code
+  --gpu-memory-utilization=0.9
+  --max-log-len=10
+
+health_check_max_wait_minutes: 20
+health_check_interval_seconds: 20
+
+# === API Configuration ===
+api_base_url: "http://localhost:${IH_PORT}/v1"
+api_type: "completion"
+model: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
+
+# === Dataset Configuration ===
+dataset_type: "hf-disk"
+dataset_path: "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/dataset/datamix-synth-completion"
+id_column_name: "id"
+input_column_name: "prompt"
+apply_udf:
+apply_udf_kwargs: {}
+dataset_kwargs: {}
+
+# === Output Configuration ===
+output_path: "/data/horse/ws/hama901h-whittle/inference-hive/examples/datamix_1b_synthetic/pilot/ih_outputs"
+
+# === Completion Arguments ===
+completions_kwargs:
+  temperature: 0.85
+  top_p: 0.92
+  max_tokens: 1536
+
+# === Connection Settings ===
+max_connections: 16
+max_retries: 3
+num_workers: 2
