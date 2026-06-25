@@ -16,3 +16,7 @@ __pycache__/
 # Virtual environments
 .pixi
 .venv/
+
+# slurm logs
+*.err
+*.out
