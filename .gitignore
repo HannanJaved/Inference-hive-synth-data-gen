@@ -8,6 +8,7 @@ __pycache__/
 *.parquet
 *.json
 *.jsonl
+*/corpus/
 
 # Log files
 *.log
