@@ -8,18 +8,19 @@ __pycache__/
 *.parquet
 *.json
 *.jsonl
-*/corpus/
+**/corpus/
+corpus/
 
 # Log files
 *.log
 *.tar
-
-# Virtual environments
-.pixi
-.venv/
+**/logs/
+logs/
 
 # slurm logs
 *.err
 *.out
-*/logs/
-logs/
+
+# Virtual environments
+.pixi
+.venv/
