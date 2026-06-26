@@ -21,6 +21,9 @@ case "$step" in
   prepare)
     "$PYTHON" "$ROOT/prepare_dataset.py" --mix-config "$ROOT/mix_config.yaml" --root "$ROOT"
     ;;
+  prepare-benchmarks)
+    "$PYTHON" "$ROOT/prepare_dclm_benchmark_ngrams.py" --root "$ROOT"
+    ;;
   validate)
     cd "$IH_ROOT"
     "$PYTHON" validate_config.py --config "$ROOT/config_datamix_1b.yaml"
@@ -54,6 +57,7 @@ case "$step" in
 Datamix 1B synthetic pipeline (inference-hive)
 
   ./run_pipeline.sh plan          # show token budget / prompt counts
+  ./run_pipeline.sh prepare-benchmarks  # build DCLM CORE 13-gram index (once)
   ./run_pipeline.sh prepare       # build prompts + hf-disk dataset
   ./run_pipeline.sh validate      # validate inference-hive config + data
   ./run_pipeline.sh create-run    # generate SLURM run directory

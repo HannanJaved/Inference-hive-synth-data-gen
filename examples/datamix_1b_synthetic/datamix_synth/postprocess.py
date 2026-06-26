@@ -11,6 +11,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from datamix_synth.config import MixConfig
+from datamix_synth.decontam import BenchmarkNgramIndex, load_benchmark_index
+from datamix_synth.dedup import DedupFilter
 
 _LEAK_PHRASES = re.compile(
     r"(as an ai|i cannot|here is the code|sure!|certainly!|let me|chatgpt|language model)",
@@ -161,6 +163,20 @@ def join_and_export(
     by_lang: Counter = Counter()
     reject_reasons: Counter = Counter()
     domain_bufs: dict[str, list[dict]] = defaultdict(list)
+    dedup_filters: dict[str, DedupFilter] = {}
+    dedup_reject_reasons: Counter = Counter()
+    decontam_rejected = 0
+
+    benchmark_index: BenchmarkNgramIndex | None = None
+    if cfg.decontam_enabled:
+        benchmark_index = load_benchmark_index(cfg)
+
+    if cfg.dedup_outputs:
+        for domain in cfg.domain_fractions:
+            dedup_filters[domain] = DedupFilter(
+                near_threshold=cfg.dedup_output_near_threshold,
+                shingle_size=cfg.dedup_shingle_size,
+            )
 
     with out_jsonl.open("w", encoding="utf-8") as fout, \
          reject_jsonl.open("w", encoding="utf-8") as frej:
@@ -195,6 +211,31 @@ def join_and_export(
                 frej.write(json.dumps({"id": row_id, "reason": reason, "domain": meta["domain"]}) + "\n")
                 continue
 
+            if cfg.dedup_outputs:
+                dedup = dedup_filters[meta["domain"]]
+                accepted, dedup_reason = dedup.try_add(text)
+                if not accepted:
+                    rejected += 1
+                    reject_reasons[dedup_reason or "duplicate"] += 1
+                    dedup_reject_reasons[dedup_reason or "duplicate"] += 1
+                    frej.write(json.dumps({
+                        "id": row_id,
+                        "reason": dedup_reason,
+                        "domain": meta["domain"],
+                    }) + "\n")
+                    continue
+
+            if benchmark_index is not None and benchmark_index.is_contaminated(text):
+                rejected += 1
+                reject_reasons["benchmark_contamination"] += 1
+                decontam_rejected += 1
+                frej.write(json.dumps({
+                    "id": row_id,
+                    "reason": "benchmark_contamination",
+                    "domain": meta["domain"],
+                }) + "\n")
+                continue
+
             rec = {
                 "id": row_id,
                 "text": text,
@@ -218,6 +259,11 @@ def join_and_export(
         "by_domain": dict(by_domain),
         "by_lang": dict(by_lang),
         "reject_reasons": dict(reject_reasons),
+        "dedup_outputs": cfg.dedup_outputs,
+        "dedup_reject_reasons": dict(dedup_reject_reasons),
+        "decontam_enabled": cfg.decontam_enabled,
+        "decontam_rejected": decontam_rejected,
+        "decontam_index": str(cfg.benchmark_index_path) if cfg.decontam_enabled else None,
         "corpus_jsonl": str(out_jsonl),
     }
     stats_path.write_text(json.dumps(stats, indent=2))

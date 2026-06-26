@@ -89,6 +89,20 @@ Each row samples axes within its domain:
 
 Rows are stored as OpenAI chat conversations with a single user message (meta-prompt). inference-hive writes the model response to parquet.
 
+During `prepare`, prompt deduplication resamples prefixes until each meta-prompt is unique within its domain (and language for multilingual). Template-aware dedup folds topic/title slots before comparing (`template_duplicate` / `near_duplicate`); tune via `dedup_prompt_near_threshold` in `mix_config.yaml`. Stats: `prompts/prompt_dedup_stats.json`.
+
+### DCLM CORE benchmark decontamination
+
+Before `prepare` or `postprocess`, build the benchmark n-gram index once:
+
+```bash
+./run_pipeline.sh prepare-benchmarks
+```
+
+This downloads the 21 DCLM CORE eval datasets (AGI Eval LSAT-AR, ARC, Big-Bench subsets, BoolQ, CoQA, HellaSwag, SQuAD, etc.), extracts questions/contexts/choices/answers, and caches a **13-word n-gram** index at `benchmarks/dclm_core_13gram_index.pkl`.
+
+A training document (prompt prefix or generated completion) is rejected if it shares **any** normalized 13-gram with the benchmark index (`benchmark_contamination`). Method matches GPT-3 / lm-eval harness decontamination (word n-grams, punctuation stripped).
+
 ## Post-processing QC
 
 Inspired by synthgen `filter` / `verify`:
@@ -97,6 +111,8 @@ Inspired by synthgen `filter` / `verify`:
 - Reject common assistant leakage phrases
 - Reject markdown-fenced code (code domain)
 - Reject math without `Problem:`/`Solution:` structure
+- Reject exact and near-duplicate completions per domain (MinHash on character shingles; see `dedup_*` in `mix_config.yaml`)
+- Reject documents with any 13-word n-gram overlap against DCLM CORE benchmarks (`benchmark_contamination`; run `prepare-benchmarks` first)
 - Export `corpus/synthetic_corpus.jsonl` with `{id, text, domain, lang}`
 - Per-domain parquet under `corpus/domain=<name>/data.parquet`
 

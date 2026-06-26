@@ -95,6 +95,20 @@ class MixConfig:
         "66c3229e708857a0bc54070131d4b1762d4f5279"
     )
 
+    # Deduplication (prompt build + postprocess QC).
+    dedup_prompts: bool = True
+    dedup_outputs: bool = True
+    # Prompt near-dedup folds topic/title slots before comparing templates.
+    dedup_prompt_near_threshold: float = 0.85
+    dedup_output_near_threshold: float = 0.78
+    dedup_shingle_size: int = 5
+    dedup_prompt_max_resamples: int = 150
+
+    # DCLM CORE benchmark decontamination (13-gram word overlap, GPT-3 style).
+    decontam_enabled: bool = True
+    decontam_ngram_size: int = 13
+    decontam_benchmark_index: str | None = None
+
     # Paths (resolved relative to SYNTH_ROOT).
     root: Path = field(default_factory=lambda: Path.cwd())
     prompts_dir: Path | None = None
@@ -108,6 +122,13 @@ class MixConfig:
         self.dataset_dir = self.dataset_dir or self.root / "dataset"
         self.outputs_dir = self.outputs_dir or self.root / "ih_outputs"
         self.corpus_dir = self.corpus_dir or self.root / "corpus"
+
+    @property
+    def benchmark_index_path(self) -> Path:
+        if self.decontam_benchmark_index:
+            p = Path(self.decontam_benchmark_index)
+            return p if p.is_absolute() else self.root / p
+        return self.root / "benchmarks" / f"dclm_core_{self.decontam_ngram_size}gram_index.pkl"
 
     @property
     def domain_fractions(self) -> dict[str, float]:

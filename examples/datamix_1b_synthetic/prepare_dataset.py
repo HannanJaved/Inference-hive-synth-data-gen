@@ -42,9 +42,11 @@ def main() -> None:
     if args.plan_only or args.dry_run:
         return
 
-    prompts_path, dataset_path = build_all(cfg)
+    prompts_path, dataset_path, dedup_stats = build_all(cfg)
     print(f"\nWrote prompts: {prompts_path}")
     print(f"Wrote inference-hive dataset: {dataset_path}")
+    if dedup_stats.get("dedup_prompts"):
+        print(f"Prompt dedup stats: {json.dumps(dedup_stats, indent=2)}")
     print("\nNext steps:")
     print("  1. Edit config_datamix_1b.yaml (SLURM paths, model)")
     print("  2. python ../../validate_config.py --config config_datamix_1b.yaml")

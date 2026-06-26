@@ -28,6 +28,19 @@ avg_tokens:
 generator_model_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
 tokenizer_name_or_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/models--openeurollm--datamix-9b-80-20/snapshots/66c3229e708857a0bc54070131d4b1762d4f5279"
 
+# Deduplication (exact + character-shingle MinHash near-dup).
+dedup_prompts: true
+dedup_outputs: true
+dedup_prompt_near_threshold: 0.85   # template-aware near-dup on folded prompt skeleton
+dedup_output_near_threshold: 0.78   # stricter near-dup on generated completions
+dedup_shingle_size: 5
+dedup_prompt_max_resamples: 150
+
+# DCLM CORE benchmark decontamination (13-word n-gram overlap).
+decontam_enabled: true
+decontam_ngram_size: 13
+# decontam_benchmark_index: benchmarks/dclm_core_13gram_index.pkl
+
 # Override paths relative to DATAMIX_SYNTH_ROOT if needed.
 paths:
   root: "."
