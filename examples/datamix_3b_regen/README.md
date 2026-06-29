@@ -2,7 +2,7 @@
 
 Standalone workspace for a **fresh generation run** with:
 
-- Template-aware **prompt dedup** at `prepare`
+- Template-aware **prompt dedup** at `prepare` (`dedup_prompt_fold_templates: false` + procedural topics for 3.6M-scale diversity)
 - **Output dedup** + **DCLM CORE decontamination** at `postprocess`
 - **16 GPUs** (16 inference shards × 1 GPU)
 - **`total_tokens: 3_000_000_000`** planned completion tokens (~3.6M prompts)
@@ -47,7 +47,8 @@ chmod +x run_pipeline.sh submit_inference.sh
 # 1. Benchmark index (skip if ../datamix_1b_synthetic/benchmarks/ exists)
 #    sbatch slurm/01_prepare.sbatch  # only prepare, see below
 
-# 2. Build deduped prompts (~3.6M planned; may take hours)
+# 2. Cancel any stuck prepare job, then build deduped prompts (~3.6M; ~24–36 h)
+scancel <prepare-jobid>   # if a previous prepare is still running
 sbatch slurm/01_prepare.sbatch
 
 # 3. Validate + inference-hive run dir

@@ -25,10 +25,14 @@ tokenizer_name_or_path: "/data/horse/ws/hama901h-whittle/.cache/huggingface/hub/
 
 dedup_prompts: true
 dedup_outputs: true
+dedup_prompt_fold_templates: false
 dedup_prompt_near_threshold: 0.85
 dedup_output_near_threshold: 0.78
 dedup_shingle_size: 5
-dedup_prompt_max_resamples: 150
+dedup_prompt_max_resamples: 50
+
+# Parallel prepare (10 shards on the 12-CPU SLURM prepare job).
+prepare_workers: 10
 
 decontam_enabled: true
 decontam_ngram_size: 13

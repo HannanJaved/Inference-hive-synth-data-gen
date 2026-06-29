@@ -1,9 +1,9 @@
 #!/bin/bash -l
 #SBATCH --job-name=dm-3b-regen-prepare
-#SBATCH --time=24:00:00
+#SBATCH --time=72:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=12
 #SBATCH --gres=gpu:1
 #SBATCH --mem=128G
 #SBATCH -p alpha
