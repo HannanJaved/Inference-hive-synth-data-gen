@@ -8,6 +8,12 @@ from __future__ import annotations
 import random
 from typing import Any
 
+from datamix_synth.procedural import (
+    procedural_code_task,
+    procedural_english_topic,
+    procedural_ml_title,
+)
+
 # --- English (Nemotron-CC-like web/educational prose) ---
 
 ENGLISH_TOPICS: dict[str, list[str]] = {
@@ -65,6 +71,31 @@ ENGLISH_OPENINGS = [
     "Over the past century, understanding {topic} has shaped public debate, policy, and technology. ",
     "To appreciate {topic}, it helps to begin with a few basic facts and then examine how they fit together. ",
     "Historians, scientists, and practitioners have documented {topic} from several angles. One useful starting point is ",
+    "In recent years, public interest in {topic} has grown as new evidence reshapes older assumptions. ",
+    "A careful reading of {topic} reveals patterns that are easy to miss on a first pass. ",
+    "When communities discuss {topic}, they often weigh practical trade-offs alongside long-term goals. ",
+    "Textbooks introduce {topic} with simplified models, but real situations tend to be more nuanced. ",
+    "Journalists covering {topic} frequently highlight case studies that illustrate broader principles. ",
+    "Students sometimes find {topic} abstract until they connect it to familiar experiences. ",
+    "Policy makers debating {topic} must balance scientific findings with local constraints. ",
+    "Engineers working near {topic} routinely test assumptions against measured data. ",
+    "Teachers explaining {topic} often begin with a concrete example before generalizing. ",
+    "Archaeological and archival sources occasionally add surprising detail to {topic}. ",
+    "Readers comparing international approaches to {topic} notice both shared themes and local variation. ",
+    "Laboratory studies of {topic} complement field observations gathered over many seasons. ",
+    "Small-scale experiments can clarify one mechanism involved in {topic}, though scale effects matter. ",
+    "Debates about {topic} sometimes hinge on definitions that different experts use differently. ",
+    "Practitioners who work with {topic} daily develop intuitions that formal models later capture. ",
+    "Review articles on {topic} summarize decades of work while noting open questions. ",
+    "Citizen groups monitoring {topic} contribute observations that professional surveys may overlook. ",
+    "Historical chronicles show how attitudes toward {topic} shifted across generations. ",
+    "Modern instruments allow finer measurements related to {topic} than were possible a century ago. ",
+    "Comparing {topic} across regions highlights environmental and cultural factors that interact. ",
+    "Introductory lectures on {topic} often map the main concepts before discussing exceptions. ",
+    "Writers describing {topic} for a general audience avoid jargon while preserving accuracy. ",
+    "Funding priorities influence which aspects of {topic} receive the most research attention. ",
+    "Seasonal cycles sometimes obscure longer trends visible only after years of {topic} records. ",
+    "Ethical questions surrounding {topic} arise whenever new applications reach the public. ",
 ]
 
 ENGLISH_HEADERS = [
@@ -72,6 +103,12 @@ ENGLISH_HEADERS = [
     "# {topic}\n\n",
     "## {topic}\n\n",
     "{topic}\n\nIntroduction\n\n",
+    "{topic}\n\nOverview\n\n",
+    "{topic}\n\nBackground\n\n",
+    "{topic}\n\nSummary\n\n",
+    "Topic: {topic}\n\n",
+    "{topic}\n\nChapter 1\n\n",
+    "{topic}\n\nNotes\n\n",
 ]
 
 # --- Code (StarCoder-like file starts) ---
@@ -220,14 +257,27 @@ def _pick(rng: random.Random, items: list[str]) -> str:
     return items[rng.randrange(len(items))]
 
 
-def english_prefix(rng: random.Random, subtopic: str) -> str:
-    topic = _pick(rng, ENGLISH_TOPICS[subtopic])
+def english_topic(rng: random.Random, subtopic: str) -> str:
+    """Pick a static or procedurally generated English topic (high combinatorial diversity)."""
+    if rng.random() < 0.15:
+        return _pick(rng, ENGLISH_TOPICS[subtopic])
+    return procedural_english_topic(rng, subtopic)
+
+
+def english_prefix(rng: random.Random, subtopic: str, *, topic: str | None = None) -> str:
+    topic = topic or english_topic(rng, subtopic)
     header = _pick(rng, ENGLISH_OPENINGS).format(topic=topic)
     return _pick(rng, ENGLISH_HEADERS).format(topic=topic) + header
 
 
+def code_task(rng: random.Random, subtopic: str) -> str:
+    if rng.random() < 0.2:
+        return _pick(rng, CODE_TASKS[subtopic])
+    return procedural_code_task(rng, subtopic)
+
+
 def code_prefix(rng: random.Random, subtopic: str, lang: str) -> str:
-    task = _pick(rng, CODE_TASKS[subtopic])
+    task = code_task(rng, subtopic)
     if lang in ("javascript", "typescript"):
         return _pick(rng, CODE_JS_HEADERS).format(task=task) + _pick(rng, CODE_JS_BODY)
     if lang == "sql":
@@ -271,13 +321,16 @@ def math_prefix(rng: random.Random, subtopic: str) -> str:
     return f"Problem:\n{statement}\n\nSolution:\n"
 
 
-def multilingual_prefix(rng: random.Random, lang_code: str) -> str:
+def multilingual_title(rng: random.Random, lang_code: str, lang_name: str) -> str:
     titles = ML_TITLES.get(lang_code)
+    if titles and rng.random() < 0.2:
+        return _pick(rng, titles)
+    return procedural_ml_title(rng, lang_code, lang_name)
+
+
+def multilingual_prefix(rng: random.Random, lang_code: str, lang_name: str = "") -> str:
     openings = ML_OPENINGS.get(lang_code, ML_GENERIC_OPENINGS)
-    if titles:
-        title = _pick(rng, titles)
-    else:
-        title = f"Article about regional history ({lang_code})"
+    title = multilingual_title(rng, lang_code, lang_name or lang_code)
     opening = _pick(rng, openings)
     return f"{title}\n\n{opening}"
 

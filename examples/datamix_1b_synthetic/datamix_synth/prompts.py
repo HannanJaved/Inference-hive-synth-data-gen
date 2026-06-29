@@ -5,9 +5,9 @@ import random
 from typing import Any
 
 from datamix_synth.prefixes import (
-    ENGLISH_TOPICS,
     code_prefix,
     english_prefix,
+    english_topic,
     math_prefix,
     multilingual_prefix,
     prefix_metadata,
@@ -57,8 +57,8 @@ def _weighted_choice(rng: random.Random, pairs: list[tuple[str, float]]) -> str:
 
 def _english_meta(rng: random.Random) -> tuple[str, dict[str, Any]]:
     sub = _weighted_choice(rng, ENGLISH_SUBTOPICS)
-    topic = rng.choice(ENGLISH_TOPICS[sub])
-    prompt = english_prefix(rng, sub)
+    topic = english_topic(rng, sub)
+    prompt = english_prefix(rng, sub, topic=topic)
     return prompt, prefix_metadata("english", lang="en", subtopic=sub, topic=topic)
 
 
@@ -76,7 +76,7 @@ def _math_meta(rng: random.Random) -> tuple[str, dict[str, Any]]:
 
 
 def _multilingual_meta(rng: random.Random, lang_code: str, lang_name: str) -> tuple[str, dict[str, Any]]:
-    prompt = multilingual_prefix(rng, lang_code)
+    prompt = multilingual_prefix(rng, lang_code, lang_name)
     return prompt, prefix_metadata("multilingual", lang=lang_code, lang_name=lang_name)
 
 

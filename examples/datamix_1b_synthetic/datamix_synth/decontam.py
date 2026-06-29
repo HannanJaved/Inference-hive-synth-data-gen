@@ -46,7 +46,18 @@ class BenchmarkNgramIndex:
     metadata: dict
 
     def is_contaminated(self, text: str) -> bool:
-        return any(ng in self.ngrams for ng in iter_word_ngrams(text, self.ngram_size))
+        tokens = normalize_for_decontam(text).split()
+        if not tokens:
+            return False
+        n = self.ngram_size
+        ngrams = self.ngrams
+        if len(tokens) < n:
+            return " ".join(tokens) in ngrams
+        # Single tokenization; early exit on first benchmark hit.
+        for i in range(len(tokens) - n + 1):
+            if " ".join(tokens[i : i + n]) in ngrams:
+                return True
+        return False
 
     def save(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)

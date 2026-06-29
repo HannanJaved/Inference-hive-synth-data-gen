@@ -103,6 +103,15 @@ class MixConfig:
     dedup_output_near_threshold: float = 0.78
     dedup_shingle_size: int = 5
     dedup_prompt_max_resamples: int = 150
+    # When true, near-dedup folds topic/title slots (good for small runs). When false,
+    # compare full prompt text (required for multi-million prompt budgets).
+    dedup_prompt_fold_templates: bool = True
+
+    # Postprocess parallelism (1 = single-threaded; use ~8–12 on SLURM CPU jobs).
+    postprocess_workers: int = 1
+
+    # Prompt prepare parallelism (1 = single-threaded; use ~8–12 for multi-million prompts).
+    prepare_workers: int = 1
 
     # DCLM CORE benchmark decontamination (13-gram word overlap, GPT-3 style).
     decontam_enabled: bool = True

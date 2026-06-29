@@ -19,6 +19,8 @@ def main() -> None:
     ap.add_argument("--ih-output", default=None, help="inference-hive output_path directory")
     ap.add_argument("--tokenize", action="store_true",
                     help="Also count tokens with the Datamix model tokenizer")
+    ap.add_argument("--workers", type=int, default=None,
+                    help="Parallel postprocess shards (default: mix_config postprocess_workers)")
     args = ap.parse_args()
 
     root = Path(args.root or os.environ.get("DATAMIX_SYNTH_ROOT", Path.cwd())).resolve()
@@ -29,7 +31,7 @@ def main() -> None:
     cfg.outputs_dir = Path(args.ih_output) if args.ih_output else root / "ih_outputs"
     cfg.corpus_dir = root / "corpus"
 
-    stats = join_and_export(cfg)
+    stats = join_and_export(cfg, workers=args.workers)
     print(json.dumps(stats, indent=2))
 
     if args.tokenize:
