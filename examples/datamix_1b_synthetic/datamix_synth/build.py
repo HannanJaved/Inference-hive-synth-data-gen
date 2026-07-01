@@ -379,26 +379,40 @@ def build_prompts(cfg: MixConfig, *, workers: int | None = None) -> tuple[Path, 
     return out, dedup_stats
 
 
+def _iter_ih_prompt_rows(prompts_path: Path) -> Iterator[dict[str, str]]:
+    """Stream id/domain/lang/prompt rows; ignore optional metadata fields per domain."""
+    with prompts_path.open(encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            yield {
+                "id": row["id"],
+                "domain": row["domain"],
+                "lang": row["lang"],
+                "prompt": row["meta_prompt"],
+            }
+
+
 def export_hf_disk(cfg: MixConfig, prompts_path: Path | None = None) -> Path:
     """Convert prompts.jsonl to a HuggingFace dataset on disk for inference-hive."""
     prompts_path = prompts_path or (cfg.prompts_dir / "prompts.jsonl")
     print(f"Exporting HF dataset from {prompts_path}...", flush=True)
-    ds = hfds.load_dataset("json", data_files=str(prompts_path), split="train")
-    ds = ds.map(
-        lambda r: {
-            "id": r["id"],
-            "domain": r["domain"],
-            "lang": r["lang"],
-            "prompt": r["meta_prompt"],
-        },
-        remove_columns=ds.column_names,
-        desc="export_hf_disk",
+    ds = hfds.Dataset.from_generator(
+        _iter_ih_prompt_rows,
+        gen_kwargs={"prompts_path": prompts_path},
+        features=hfds.Features({
+            "id": hfds.Value("string"),
+            "domain": hfds.Value("string"),
+            "lang": hfds.Value("string"),
+            "prompt": hfds.Value("string"),
+        }),
     )
 
     cfg.dataset_dir.mkdir(parents=True, exist_ok=True)
     out = cfg.dataset_dir / "datamix-synth-completion"
     ds.save_to_disk(str(out))
-    print(f"Wrote HF dataset: {out}", flush=True)
+    print(f"Wrote HF dataset: {out} ({len(ds):,} rows)", flush=True)
     return out
 
 
