@@ -26,6 +26,18 @@ case "$step" in
   prepare)
     "$PYTHON" "${SYNTH_PKG}/prepare_dataset.py" --mix-config "$ROOT/mix_config.yaml" --root "$ROOT"
     ;;
+  export-dataset)
+    "$PYTHON" -c "
+from pathlib import Path
+from datamix_synth.config import load_mix_config
+from datamix_synth.build import export_hf_disk
+cfg = load_mix_config('${ROOT}/mix_config.yaml')
+cfg.root = Path('${ROOT}')
+cfg.prompts_dir = cfg.root / 'prompts'
+cfg.dataset_dir = cfg.root / 'dataset'
+export_hf_disk(cfg)
+"
+    ;;
   validate)
     cd "$IH_ROOT"
     "$PYTHON" validate_config.py --config "$ROOT/config_datamix_3b.yaml"
@@ -66,6 +78,7 @@ Datamix 3B regeneration (dedup + decontam, 16 GPUs)
   ./run_pipeline.sh plan
   ./run_pipeline.sh prepare-benchmarks   # once, or use index from datamix_1b_synthetic
   ./run_pipeline.sh prepare              # deduped prompts (~3.6M rows planned)
+  ./run_pipeline.sh export-dataset       # HF disk only (if prepare wrote prompts.jsonl)
   ./run_pipeline.sh validate
   ./run_pipeline.sh create-run
   ./submit_inference.sh                  # 16 GPU shards
